@@ -31,6 +31,7 @@ public class DinningReview {
     private Restaurant restaurantId;
 
     private String opinion;
+
     private Integer peanutScore;
     private Integer dairyScore;
     private Integer eggScore; 
