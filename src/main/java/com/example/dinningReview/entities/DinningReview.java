@@ -28,7 +28,7 @@ public class DinningReview {
 
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
-    private Restaurant restaurantId;
+    private Restaurant restaurant;
 
     private String opinion;
 
