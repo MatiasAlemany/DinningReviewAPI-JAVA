@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +21,7 @@ import com.example.dinningReview.entities.Restaurant;
 import com.example.dinningReview.entities.User;
 
 @RestController
-@RequestMapping("/reviews")
+@RequestMapping
 public class DinningReviewController {
     private final DinningReviewRepository dinningReviewRepository;
     private final RestaurantRepository restaurantRepository;
@@ -33,17 +34,10 @@ public class DinningReviewController {
         this.userRepository = userRepository;
     }
 
-    /* LLAMAR A TODAS LAS RESEÑAS */
-    @GetMapping
+    /* VER TODAS LAS RESEÑAS */
+    @GetMapping("/reviews")
     public List<DinningReview> getDinningReview() {
         return dinningReviewRepository.findAll();
-    }
-
-    /* CREAR RESTAURANTE */
-    @PostMapping
-    public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
-        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedRestaurant);
     }
 
     /* VER TODOS LOS RESTAURANTES */
@@ -52,8 +46,15 @@ public class DinningReviewController {
         return restaurantRepository.findAll();
     }
 
+    /* CREAR RESTAURANTE */
+    @PostMapping("/restaurants")
+    public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
+        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedRestaurant);
+    }
+
     /* POSTEAR RESEÑA NUEVA */
-    @PostMapping("/{restaurantId}")
+    @PostMapping("/restaurants/{restaurantId}")
     public ResponseEntity<DinningReview> createReview(@RequestBody DinningReview review, @PathVariable Long restaurantId) {
 
         String displayName = review.getUser();
@@ -104,7 +105,7 @@ public class DinningReviewController {
 }
 
     /* VER TODAS LAS RESEÑAS DE UN RESTAURANTE */
-    @GetMapping("/{restaurantId}")
+    @GetMapping("/restaurants/{restaurantId}")
     public ResponseEntity<List<DinningReview>> restaurantReviews(@PathVariable Long restaurantId){
         Optional<Restaurant> restaurantValidation = restaurantRepository.findById(restaurantId);
 
@@ -123,8 +124,50 @@ public class DinningReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
+    /* ACTUALIZAR RESTAURANTE */
+    @PutMapping("/restaurants/{restaurantId}")
+    public ResponseEntity<Restaurant> updateRestaurant(@PathVariable Long restaurantId, @RequestBody Restaurant updatedRestaurant){
+        Optional<Restaurant> restaurant = restaurantRepository.findById(restaurantId);
+
+        if(!restaurant.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        updatedRestaurant.setId(restaurantId);
+        Restaurant savedRestaurant = restaurantRepository.save(updatedRestaurant);
+        return ResponseEntity.status(HttpStatus.OK).body(savedRestaurant);
+    }
+
+    /* ACTUALIZAR USUARIO */
+    @PutMapping("/user/{userId}")
+    public ResponseEntity<User> updatedUser(@PathVariable Long userId, @RequestBody User updatedUser){
+        Optional<User> user = userRepository.findById(userId);
+
+        if(!user.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        updatedUser.setId(userId);
+        User savedUser = userRepository.save(updatedUser);
+        return ResponseEntity.status(HttpStatus.OK).body(savedUser);
+    }
+
+    /* ACTUALIZAR RESEÑA */
+    @PutMapping("/reviews/{reviewId}")
+    public ResponseEntity<DinningReview> updatedReview(@PathVariable Long reviewId, @RequestBody DinningReview updatedReview){
+        Optional<DinningReview> review = dinningReviewRepository.findById(reviewId);
+
+        if (!review.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        updatedReview.setId(reviewId);
+        DinningReview savedReview = dinningReviewRepository.save(updatedReview);
+        return ResponseEntity.status(HttpStatus.OK).body(savedReview);
+    }
+
     /* ELIMINAR RESTAURANTE */
-    @DeleteMapping("/{restaurantId}")
+    @DeleteMapping("/restaurants/{restaurantId}")
     public ResponseEntity<Void> deleteRestaurant(@PathVariable Long restaurantId){
         Optional<Restaurant> restaurant = restaurantRepository.findById(restaurantId);
 
@@ -150,7 +193,7 @@ public class DinningReviewController {
     }
 
      /* ELIMINAR REVIEW */
-     @DeleteMapping("/{reviewId}")
+     @DeleteMapping("/reviews/{reviewId}")
      public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId){
          Optional<Restaurant> restaurant = restaurantRepository.findById(reviewId);
  
